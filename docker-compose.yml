@@ -6,15 +6,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    restart: always
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL}
-      ELASTICSEARCH_HOST: ${ELASTICSEARCH_HOST}
-      REDIS_HOST: ${REDIS_HOST}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
