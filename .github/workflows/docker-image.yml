@@ -26,7 +26,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ github.ref == 'refs/heads/main' && secrets.DP_EC2_USERNAME || secrets.DEV_EC2_USERNAME }}@${{ github.ref == 'refs/heads/main' && secrets.DP_EC2_HOST || secrets.DEV_EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             if [ ! -d "soulmate" ]; then
               git clone https://github.com/EternalSoulmate/soulmate_backend.git soulmate
             fi
