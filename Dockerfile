@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+VOLUME ["/usr/src/app/node_modules"]
 
 CMD ["npm", "run", "start:dev"]
