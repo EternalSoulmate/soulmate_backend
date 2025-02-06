@@ -1,0 +1,44 @@
+name: CI/CD for soulmate
+
+on:
+  push:
+    branches:
+      - dev  
+      - main
+    paths:
+      - '**'                
+      - '!.env'   
+      - '!node_modules/**' 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy to Server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ github.ref == 'refs/heads/main' && secrets.DP_EC2_USERNAME || secrets.DEV_EC2_USERNAME }}@${{ github.ref == 'refs/heads/main' && secrets.DP_EC2_HOST || secrets.DEV_EC2_HOST }} << 'EOF'
+            if [ ! -d "soulmate" ]; then
+              git clone https://github.com/EternalSoulmate/soulmate_backend.git soulmate
+            fi
+
+            cd soulmate
+            git pull origin $( [ "${GITHUB_REF##*/}" = "main" ] && echo "main" || echo "dev" )
+
+            if git diff --name-only HEAD~1 | grep -qE "package(-lock)?\.json"; then
+              npm install
+            fi
+
+            docker-compose down --remove-orphans
+            docker-compose build --no-cache 
+            docker-compose up -d         
+          EOF
